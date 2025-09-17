@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物流信息查询系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Microsoft YaHei', sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .container { background: white; border-radius: 15px; box-shadow: 0 15px 30px rgba(0,0,0,0.2); width: 100%; max-width: 500px; overflow: hidden; }
+        .header { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 25px 20px; text-align: center; }
+        .header h1 { font-size: 24px; margin-bottom: 8px; }
+        .header p { font-size: 14px; opacity: 0.9; }
+        .search-section { padding: 25px 20px; }
+        .input-group { margin-bottom: 20px; position: relative; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #333; }
+        .input-group input { width: 100%; padding: 14px 14px 14px 40px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 16px; }
+        .input-group i { position: absolute; left: 15px; top: 40px; color: #aaa; }
+        .input-group input:focus { outline: none; border-color: #4facfe; box-shadow: 0 0 0 3px rgba(79,172,254,0.1); }
+        .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .result-section { padding: 20px; display: none; }
+        .result-card { background: #f8f9fa; border-radius: 10px; padding: 20px; margin-bottom: 15px; border-left: 4px solid #4facfe; }
+        .result-item { display: flex; justify-content: space-between; margin-bottom: 10px; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .result-item:last-child { border-bottom: none; margin-bottom: 0; }
+        .result-label { font-weight: 600; color: #555; }
+        .result-value { color: #333; text-align: right; font-family: monospace; }
+        .action-buttons { display: flex; gap: 10px; margin-top: 20px; }
+        .action-btn { flex: 1; padding: 12px; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .query-btn { background: #28a745; color: white; }
+        .query-btn:hover { background: #218838; }
+        .back-btn { background: #6c757d; color: white; }
+        .back-btn:hover { background: #5a6268; }
+        .error-message { background: #fff3f3; color: #dc3545; padding: 12px; border-radius: 8px; border-left: 4px solid #dc3545; margin-top: 15px; display: none; }
+        .footer { text-align: center; padding: 15px; color: #666; font-size: 12px; border-top: 1px solid #eee; }
+        @media (max-width: 480px) {
+            .container { margin: 10px; border-radius: 10px; }
+            .header { padding: 20px 15px; }
+            .header h1 { font-size: 20px; }
+            .action-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-truck"></i> 物流信息查询系统</h1>
+            <p>输入手机号即可查询您的物流状态</p>
+        </div>
+        
+        <div class="search-section" id="searchSection">
+            <div class="input-group">
+                <label for="phoneInput"><i class="fas fa-mobile-alt"></i> 请输入手机号：</label>
+                <i class="fas fa-phone"></i>
+                <input type="text" id="phoneInput" placeholder="请输入11位手机号码" maxlength="11" oninput="this.value = this.value.replace(/\D/g, '')">
+            </div>
+            
+            <button class="btn" onclick="searchLogistics()"><i class="fas fa-search"></i> 立即查询</button>
+            
+            <div class="error-message" id="errorMessage"><i class="fas fa-exclamation-circle"></i> 未找到该手机号对应的物流信息</div>
+        </div>
+        
+        <div class="result-section" id="resultSection">
+            <div class="result-card">
+                <div class="result-item"><span class="result-label"><i class="fas fa-mobile-alt"></i> 手机号：</span><span class="result-value" id="resultPhone">13800138000</span></div>
+                <div class="result-item"><span class="result-label"><i class="fas fa-barcode"></i> 物流单号：</span><span class="result-value" id="resultNu">773123456789</span></div>
+                <div class="result-item"><span class="result-label"><i class="fas fa-shipping-fast"></i> 快递公司：</span><span class="result-value" id="resultCom">京东物流</span></div>
+                <div class="result-item"><span class="result-label"><i class="fas fa-store"></i> 发货状态：</span><span class="result-value" id="resultStatus">已发货</span></div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn query-btn" onclick="openKuaidi100()"><i class="fas fa-external-link-alt"></i> 查看详细物流</button>
+                <button class="action-btn back-btn" onclick="backToSearch()"><i class="fas fa-arrow-left"></i> 返回查询</button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><i class="fas fa-info-circle"></i> 查询结果来自快递100，信息仅供参考</p>
+            <p>© 2024 物流查询系统</p>
+        </div>
+    </div>
+
+    <script>
+        const logisticsData = [
+            {phone: '13877518652', com: 'jd', nu: 'JDX042979827729'},
+            {phone: '15036991155', com: 'jd', nu: 'JDX042979817486'},
+            {phone: '18621190520', com: 'jd', nu: 'JDX042979802763'},
+            {phone: '15278496261', com: 'jd', nu: 'JDX042965110283'},
+            {phone: '15277211005', com: 'jd', nu: 'JDX042965063923'},
+            {phone: '19997999465', com: 'jd', nu: 'JDX042957201435'},
+            {phone: '15207737553', com: 'jd', nu: 'JDX042957177744'},
+            {phone: '18777342826', com: 'jd', nu: 'JDX042957174082'},
+            {phone: '18172640105', com: 'jd', nu: 'JDX042957177753'},
+            {phone: '18877602849', com: 'jd', nu: 'JDX042957199271'},
+            {phone: '18074836676', com: 'jd', nu: 'JDX042957191929'},
+            {phone: '19174571130', com: 'jd', nu: 'JDX042957150405'},
+            {phone: '15307732880', com: 'jd', nu: 'JDX042957191910'},
+            {phone: '13737331850', com: 'jd', nu: 'JDX042957146300'},
+            {phone: '15077350665', com: 'jd', nu: 'JDX042957199263'},
+            {phone: '15077350665', com: 'jd', nu: 'JDX042957199254'},
+            {phone: '18176984738', com: 'jd', nu: 'JDX042957177735'},
+            {phone: '18278378573', com: 'jd', nu: 'JDX042957205789'},
+            {phone: '17774701013', com: 'jd', nu: 'JDX042957150394'},
+            {phone: '13457397594', com: 'jd', nu: 'JDX042957191891'},
+            {phone: '13132672277', com: 'jd', nu: 'JDX042957205770'},
+            {phone: '13377366665', com: 'jd', nu: 'JDX042957174073'},
+            {phone: '18290099644', com: 'jd', nu: 'JDX042957146263'},
+            {phone: '18877374186', com: 'jd', nu: 'JDX042957177727'},
+            {phone: '17777340606', com: 'jd', nu: 'JDX042957191883'},
+            {phone: '15207837111', com: 'jd', nu: 'JDX042957191874'},
+            {phone: '18677021280', com: 'jd', nu: 'JDX042957146272'},
+            {phone: '18778890727', com: 'jd', nu: 'JDX042957150386'},
+            {phone: '15295828853', com: 'jd', nu: 'JDX042957174064'},
+            {phone: '13768789772', com: 'jd', nu: 'JDX042957201426'}
+        ];
+
+        const companyMap = {
+            'jd': '京东物流', 'sto': '申通快递', 'yto': '圆通速递', 'zto': '中通快递',
+            'htky': '百世快递', 'yd': '韵达速递', 'sf': '顺丰速运', 'ems': 'EMS'
+        };
+
+        let currentRecord = null;
+
+        function searchLogistics() {
+            const inputPhone = document.getElementById('phoneInput').value.trim();
+            const messageElement = document.getElementById('errorMessage');
+            messageElement.style.display = 'none';
+
+            if (!inputPhone) {
+                showError('请输入手机号！');
+                return;
+            }
+            
+            if (!/^1[3-9]\d{9}$/.test(inputPhone)) {
+                showError('请输入有效的11位手机号码！');
+                return;
+            }
+
+            const record = logisticsData.find(item => item.phone === inputPhone);
+            if (record) {
+                currentRecord = record;
+                showResult(record);
+            } else {
+                showError('未找到该手机号对应的物流信息，请核对后重试。');
+            }
+        }
+
+        function showResult(record) {
+            document.getElementById('resultPhone').textContent = record.phone;
+            document.getElementById('resultNu').textContent = record.nu;
+            document.getElementById('resultCom').textContent = companyMap[record.com] || record.com;
+            document.getElementById('resultStatus').textContent = '已发货';
+            document.getElementById('searchSection').style.display = 'none';
+            document.getElementById('resultSection').style.display = 'block';
+        }
+
+        function showError(message) {
+            const messageElement = document.getElementById('errorMessage');
+            messageElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+            messageElement.style.display = 'block';
+        }
+
+        function openKuaidi100() {
+            if (currentRecord) {
+                const kuaidi100Url = `https://www.kuaidi100.com/chaxun?com=${currentRecord.com}&nu=${currentRecord.nu}`;
+                window.open(kuaidi100Url, '_blank');
+            }
+        }
+
+        function backToSearch() {
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('searchSection').style.display = 'block';
+            document.getElementById('phoneInput').value = '';
+            document.getElementById('phoneInput').focus();
+        }
+
+        document.getElementById('phoneInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') searchLogistics();
+        });
+
+        window.onload = function() {
+            document.getElementById('phoneInput').focus();
+        };
+    </script>
+</body>
+</html>
