@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美育未来物流查询系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 480px;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #3498db 0%, #1a5276 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            z-index: 1;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .logo {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: white;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .search-section {
+            padding: 30px 25px;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 16px 20px 16px 50px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+        
+        .input-group i {
+            position: absolute;
+            left: 20px;
+            top: 47px;
+            color: #3498db;
+            font-size: 20px;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            background: white;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .result-section {
+            padding: 25px;
+            display: none;
+        }
+        
+        .result-card {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            animation: slideIn 0.4s ease;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e1e8ed;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .result-value {
+            color: #3498db;
+            text-align: right;
+            font-family: monospace;
+            font-weight: 500;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+        }
+        
+        .query-btn {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
+        }
+        
+        .query-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(46, 204, 113, 0.4);
+        }
+        
+        .back-btn {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(149, 165, 166, 0.3);
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(149, 165, 166, 0.4);
+        }
+        
+        .error-message {
+            background: #ffeaea;
+            color: #e74c3c;
+            padding: 16px;
+            border-radius: 10px;
+            border-left: 5px solid #e74c3c;
+            margin-top: 20px;
+            display: none;
+            animation: shake 0.5s ease;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 14px;
+            border-top: 1px solid #ecf0f1;
+            background: #f8fafc;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 25px 15px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .search-section {
+                padding: 25px 20px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-shipping-fast"></i>
+                </div>
+                <h1>美育未来物流查询系统</h1>
+                <p>输入手机号即可查询您的物流状态</p>
+            </div>
+        </div>
+        
+        <div class="search-section" id="searchSection">
+            <div class="input-group">
+                <label for="phoneInput"><i class="fas fa-mobile-alt"></i> 请输入手机号：</label>
+                <i class="fas fa-phone"></i>
+                <input 
+                    type="text" 
+                    id="phoneInput" 
+                    placeholder="请输入11位手机号码" 
+                    maxlength="11"
+                    oninput="this.value = this.value.replace(/\D/g, '')"
+                >
+            </div>
+            
+            <button class="btn" onclick="searchLogistics()">
+                <i class="fas fa-search"></i> 立即查询
+            </button>
+            
+            <div class="error-message" id="errorMessage">
+                <i class="fas fa-exclamation-circle"></i> 未找到该手机号对应的物流信息，请核对后重试。
+            </div>
+        </div>
+        
+        <div class="result-section" id="resultSection">
+            <div class="result-card">
+                <div class="result-item">
+                    <span class="result-label"><i class="fas fa-mobile-alt"></i> 手机号：</span>
+                    <span class="result-value" id="resultPhone">13800138000</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label"><i class="fas fa-barcode"></i> 物流单号：</span>
+                    <span class="result-value" id="resultNu">YT7579138178139</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label"><i class="fas fa-shipping-fast"></i> 快递公司：</span>
+                    <span class="result-value" id="resultCom">圆通速递</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label"><i class="fas fa-store"></i> 发货状态：</span>
+                    <span class="result-value" id="resultStatus">运输中</span>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn query-btn" onclick="openKuaidi100()">
+                    <i class="fas fa-external-link-alt"></i> 查看详细物流
+                </button>
+                <button class="action-btn back-btn" onclick="backToSearch()">
+                    <i class="fas fa-arrow-left"></i> 返回查询
+                </button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><i class="fas fa-info-circle"></i> 温馨提示：查询结果来自快递100，信息仅供参考</p>
+            <p>© 2024 美育未来物流查询系统</p>
+        </div>
+    </div>
+
+    <script>
+        // 物流数据
+        const logisticsData = [
+            {phone: '15207827686', com: 'yuantong', nu: 'YT7579138178139'},
+            {phone: '13878743411', com: 'sxjdfreight', nu: 'S35323317634'},
+            {phone: '15177070519', com: 'yuantong', nu: 'YT7579137980713'},
+            {phone: '15777948745', com: 'yuantong', nu: 'YT7579138256174'},
+            {phone: '19911214887', com: 'yuantong', nu: 'YT7579137324016'},
+            {phone: '18677689300', com: 'sxjdfreight', nu: 'S35323317610'},
+            {phone: '13978873889', com: 'yuantong', nu: 'YT7579136558306'},
+            {phone: '13097766689', com: 'yuantong', nu: 'YT7579136558311'},
+            {phone: '13557790663', com: 'sxjdfreight', nu: 'S35323300339'},
+            {phone: '18677011625', com: 'sxjdfreight', nu: 'S35323317658'},
+            {phone: '18977906046', com: 'yuantong', nu: 'YT7579138962659'},
+            {phone: '13097800511', com: 'yuantong', nu: 'YT7579138414930'},
+            {phone: '13407727027', com: 'yuantong', nu: 'YT7579136715396'},
+        ];
+
+        // 快递公司代码映射
+        const companyMap = {
+            'yuantong': '圆通速递',
+            'sxjdfreight': '顺心捷达',
+            'sto': '申通快递',
+            'yto': '圆通速递',
+            'zto': '中通快递',
+            'htky': '百世快递',
+            'yd': '韵达速递',
+            'sf': '顺丰速运',
+            'ems': 'EMS',
+            'ttk': '天天快递',
+            'jd': '京东物流'
+        };
+
+        let currentRecord = null;
+
+        function searchLogistics() {
+            const inputPhone = document.getElementById('phoneInput').value.trim();
+            const messageElement = document.getElementById('errorMessage');
+            messageElement.style.display = 'none';
+
+            // 简单验证输入
+            if (!inputPhone) {
+                showError('请输入手机号！');
+                return;
+            }
+            
+            if (!/^1[3-9]\d{9}$/.test(inputPhone)) {
+                showError('请输入有效的11位手机号码！');
+                return;
+            }
+
+            // 在数据数组中查找匹配的记录
+            const record = logisticsData.find(item => item.phone === inputPhone);
+
+            if (record) {
+                currentRecord = record;
+                showResult(record);
+            } else {
+                showError('未找到该手机号对应的物流信息，请核对后重试。');
+            }
+        }
+
+        function showResult(record) {
+            // 更新结果页面信息
+            document.getElementById('resultPhone').textContent = record.phone;
+            document.getElementById('resultNu').textContent = record.nu;
+            document.getElementById('resultCom').textContent = companyMap[record.com] || record.com;
+            document.getElementById('resultStatus').textContent = '运输中';
+            
+            // 切换到结果页面
+            document.getElementById('searchSection').style.display = 'none';
+            document.getElementById('resultSection').style.display = 'block';
+        }
+
+        function showError(message) {
+            const messageElement = document.getElementById('errorMessage');
+            messageElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+            messageElement.style.display = 'block';
+            
+            // 添加抖动动画
+            messageElement.style.animation = 'none';
+            setTimeout(() => {
+                messageElement.style.animation = 'shake 0.5s ease';
+            }, 10);
+        }
+
+        function openKuaidi100() {
+            if (currentRecord) {
+                const kuaidi100Url = `https://www.kuaidi100.com/chaxun?com=${currentRecord.com}&nu=${currentRecord.nu}`;
+                window.open(kuaidi100Url, '_blank');
+            }
+        }
+
+        function backToSearch() {
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('searchSection').style.display = 'block';
+            document.getElementById('phoneInput').value = '';
+            document.getElementById('phoneInput').focus();
+        }
+
+        // 让用户按回车键也能触发查询
+        document.getElementById('phoneInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                searchLogistics();
+            }
+        });
+
+        // 页面加载完成后让输入框自动获得焦点
+        window.onload = function() {
+            document.getElementById('phoneInput').focus();
+        };
+    </script>
+</body>
+</html>
